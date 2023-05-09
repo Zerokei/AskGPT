@@ -1,5 +1,8 @@
 import openai
 import argparse
+from rich.console import Console
+from rich.markdown import Markdown
+from redline import Redlines
 
 # its a function that clears the api key
 def clear_api_key():
@@ -43,6 +46,15 @@ def get_completions(prompt, model="gpt-3.5-turbo"):
 	)
 	return response.choices[0].message["content"]
 
+def input_text():
+	text = ''
+	while True:
+		user_input = input('Text: ')
+		if user_input == 'END':
+			break
+		text += user_input + '\n'
+	return text
+
 # its a function that ask gpt questions and print the results
 # !TODO: 实现流式返回
 def ask_gpt(type):
@@ -53,6 +65,36 @@ def ask_gpt(type):
 		prompt = f"""
 			Question: ```{question}```
 		"""
+	elif type == 'inferring':
+		text = input_text()
+		
+		topic_list = [
+			"nasa", "local government", "engineering", 
+			"employee satisfaction", "federal government"
+		]
+
+		prompt = f"""
+		Determine whether each item in the following list of topics is a topic in the text below, which is delimited with triple backticks.
+		Give your answer as list with 0 or 1 for each topic.
+		Format your answer a JSON object.
+		List of topics: {", ".join(topic_list)}
+		Text sample: '''{text}'''
+		"""
+
+		print("prompt: {}".format(prompt))
+
+	elif type == 'correct':
+		# !TODO: 重构 correct 的写法
+		text = input_text()
+		prompt = f"""
+		proofread and correct the review:```{text}```
+		"""
+		response = get_completions(prompt)
+		diff = Redlines(text, response)
+		markdown_text = diff.output_markdown
+		print(markdown_text)	
+		return
+
 	if prompt == '':
 		print('\U0001F62D The prompt is empty! Maybe the question type is not valid!')
 	else :
@@ -67,11 +109,11 @@ parser = argparse.ArgumentParser(
 api_action_group = parser.add_mutually_exclusive_group()
 
 api_key_group = api_action_group.add_mutually_exclusive_group()
-api_key_group.add_argument("-A", "--add-api-key", help="add chatGPT api key")
+api_key_group.add_argument("-A", "--add-api-key", metavar="api-key", help="add chatGPT api key")
 api_key_group.add_argument("-C", "--clear-api-key", action="store_true", help="clear stored chatGPT api key")
 api_key_group.add_argument("-P", "--print-api-key", action="store_true", help="print stored chatGPT api key")
 
-api_action_group.add_argument("--ask-gpt", help="ask a question to chatGPT")
+api_action_group.add_argument("--ask-gpt", metavar="question-type", help="ask a question to chatGPT")
 
 args = parser.parse_args()
 
