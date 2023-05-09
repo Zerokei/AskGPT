@@ -36,6 +36,21 @@ def set_api_key():
 		openai.api_key = f.read()
 	f.close()
 
+def ask_chatbot():
+	context = []
+	role = input("Set the role of the chatbot: \n")
+	if role:
+		context.append({'role':'system', 'content': f"{role}"})
+	print("Input 'END' to end the conversation.")
+	while True:
+		prompt = input('You: ')
+		if prompt == 'END':
+			break
+		context.append({'role': 'user', 'content': f"{prompt}"})
+		response = get_completion_from_messages(context) 
+		print("GPT: {}".format(response))
+		context.append({'role': 'assistant', 'content': f"{response}"})
+
 # its a function that gets the openai response
 def get_completions(prompt, model="gpt-3.5-turbo"):
 	messages = [{"role": "user", "content": prompt}]
@@ -45,6 +60,14 @@ def get_completions(prompt, model="gpt-3.5-turbo"):
 		temperature=0,
 	)
 	return response.choices[0].message["content"]
+
+def get_completion_from_messages(messages, model="gpt-3.5-turbo", temperature=0):
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=temperature,
+    )
+    return response.choices[0].message["content"]
 
 def input_text():
 	text = ''
@@ -93,6 +116,9 @@ def ask_gpt(type):
 		diff = Redlines(text, response)
 		markdown_text = diff.output_markdown
 		print(markdown_text)	
+		return
+	elif type == 'chatbot':
+		ask_chatbot()
 		return
 
 	if prompt == '':
