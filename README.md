@@ -1,4 +1,4 @@
-# askGPT
+# AskGPT
 
 ## how to use it?
 
