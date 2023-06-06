@@ -1,27 +1,28 @@
 import openai
 import argparse
-from rich.console import Console
-from rich.markdown import Markdown
 from redline import Redlines
 
-# its a function that clears the api key
+
+# It's a function that clears the api key
 def clear_api_key():
     name = input('Are you sure to clear the api-key? (y/n): ')
     if name != 'y':
-            return
+        return
     with open('.api-key', 'w') as f:
-            f.write('')
+        f.write('')
     f.close()
     print('\U0001F9F9 The chatGPT key has been cleared successfully!')
 
-# its a function that append the added api key to the .api-key file
+
+# It's a function that append the added api key to the .api-key file
 def add_api_key(api_key):
     with open('.api-key', 'w') as f:
-            f.write(api_key)
+        f.write(api_key)
     f.close()
     print('\U0001F600 The chatGPT key "{}" has been added successfully!'.format(api_key))
 
-# its a function that prints the api key
+
+# It's a function that prints the api key
 def print_api_key():
     with open('.api-key', 'r') as f:
         api_key = f.read()
@@ -36,22 +37,24 @@ def set_api_key():
         openai.api_key = f.read()
     f.close()
 
+
 def ask_chatbot():
     context = []
     role = input("Set the role of the chatbot: \n")
     if role:
-        context.append({'role':'system', 'content': f"{role}"})
+        context.append({'role': 'system', 'content': f"{role}"})
     print("Input 'END' to end the conversation.")
     while True:
         prompt = input('You: ')
         if prompt == 'END':
-                break
+            break
         context.append({'role': 'user', 'content': f"{prompt}"})
         response = get_completion_from_messages(context)
         print("GPT: {}".format(response))
         context.append({'role': 'assistant', 'content': f"{response}"})
 
-# its a function that gets the openai response
+
+# It's a function that gets the openai response
 def get_completions(prompt, model="gpt-3.5-turbo"):
     messages = [{"role": "user", "content": prompt}]
     response = openai.ChatCompletion.create(
@@ -61,6 +64,7 @@ def get_completions(prompt, model="gpt-3.5-turbo"):
     )
     return response.choices[0].message["content"]
 
+
 def get_completion_from_messages(messages, model="gpt-3.5-turbo", temperature=0):
     response = openai.ChatCompletion.create(
         model=model,
@@ -69,14 +73,16 @@ def get_completion_from_messages(messages, model="gpt-3.5-turbo", temperature=0)
     )
     return response.choices[0].message["content"]
 
+
 def input_text():
     text = ''
     while True:
         user_input = input('Text: ')
         if user_input == 'END':
-                break
+            break
         text += user_input + '\n'
     return text
+
 
 # its a function that ask gpt questions and print the results
 # !TODO: 实现流式返回
@@ -92,8 +98,8 @@ def ask_gpt(type):
         text = input_text()
 
         topic_list = [
-                "nasa", "local government", "engineering",
-                "employee satisfaction", "federal government"
+            "nasa", "local government", "engineering",
+            "employee satisfaction", "federal government"
         ]
 
         prompt = f"""
@@ -123,9 +129,10 @@ def ask_gpt(type):
 
     if prompt == '':
         print('\U0001F62D The prompt is empty! Maybe the question type is not valid!')
-    else :
+    else:
         response = get_completions(prompt)
         print(response)
+
 
 parser = argparse.ArgumentParser(
     prog="ChatGPT Bot",
@@ -151,5 +158,3 @@ elif args.print_api_key:
     print_api_key()
 elif args.ask_gpt:
     ask_gpt(args.ask_gpt)
-
-

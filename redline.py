@@ -8,6 +8,7 @@ tokenizer = re.compile(r"((?:[^()\s]+|[().?!-])\s*)")
 def tokenize_text(text: str) -> list[str]:
     return re.findall(tokenizer, text)
 
+
 class Redlines:
     _source: str = None
     _test: str = None
